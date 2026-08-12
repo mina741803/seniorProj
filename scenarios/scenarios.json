@@ -1,0 +1,298 @@
+{
+  "schema_version": "1.0",
+  "schema_notes": {
+    "scenario": "id, category, difficulty, title, start_node, nodes{}",
+    "node_decision": "{ type: 'decision', narrative, choices: [{ text, next }] }",
+    "node_outcome": "{ type: 'outcome', result: 'good'|'neutral'|'bad', score, feedback }",
+    "scoring": "easy outcomes +/-10, medium +/-15, hard +/-20, neutral choices score 0-5"
+  },
+  "scenarios": [
+
+    {
+      "id": "phish-001",
+      "category": "phishing",
+      "difficulty": "easy",
+      "title": "Payroll verification email",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "You get an email that looks like it's from HR: 'Urgent: Payroll system update — verify your direct deposit information within 24 hours or your next paycheck may be delayed.' It links to 'hr-payroll-verify-online.com'.",
+          "choices": [
+            { "text": "Click the link and enter your bank details to be safe", "next": "out_bad" },
+            { "text": "Forward the email to IT/security and report it as suspicious", "next": "out_good" },
+            { "text": "Reply to the email asking if this is legitimate", "next": "out_neutral" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -10, "feedback": "The domain 'hr-payroll-verify-online.com' isn't your company's actual domain, and urgency + a deadline is a classic pressure tactic. Entering credentials here would hand them straight to an attacker." },
+        "out_good": { "type": "outcome", "result": "good", "score": 10, "feedback": "Correct. Mismatched domains and artificial urgency are strong phishing signals. Reporting it lets IT block the sender and warn others before anyone clicks." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 3, "feedback": "Replying doesn't put you at risk directly, but it confirms to the attacker that your address is active, and it doesn't warn IT or your coworkers. Reporting through official channels is the better move." }
+      }
+    },
+
+    {
+      "id": "phish-002",
+      "category": "phishing",
+      "difficulty": "medium",
+      "title": "Urgent wire transfer from the 'CEO'",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "An email lands in your inbox from your CEO's name, but the domain is 'acme-inc.co' instead of your company's real 'acme-inc.com'. It reads: 'I'm in a board meeting and can't talk. Need you to process a $14,000 wire to a new vendor immediately. Call me at 555-0199 if you have questions, but I need this done in the next 20 minutes.'",
+          "choices": [
+            { "text": "Process the wire right away — the CEO said it's urgent", "next": "out_bad_immediate" },
+            { "text": "Call the phone number listed in the email to confirm", "next": "n2" },
+            { "text": "Look up the CEO's actual number in the company directory and call that instead", "next": "out_good_directory" },
+            { "text": "Report the email to IT/security without acting on it", "next": "out_good_report" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "You call the number from the email. Someone picks up sounding rushed and stressed, confirms the request, and pushes you to move fast: 'Yes, exactly what I need, please hurry, I have to get back in there.'",
+          "choices": [
+            { "text": "Proceed with the wire since they confirmed it", "next": "out_bad_confirmed_fake" },
+            { "text": "Hang up and instead call the number from the company directory", "next": "out_good_directory" },
+            { "text": "Tell them you need to report this through your normal verification process first", "next": "out_good_report" }
+          ]
+        },
+        "out_bad_immediate": { "type": "outcome", "result": "bad", "score": -15, "feedback": "Acting on urgency and a lookalike domain without verification is exactly what this attack relies on. A slightly altered domain ('.co' vs '.com') is a common spoofing trick." },
+        "out_bad_confirmed_fake": { "type": "outcome", "result": "bad", "score": -15, "feedback": "The phone number came from the same suspicious email — calling it just lets the attacker impersonate the CEO by voice too. Verification only counts if it uses a number you already trust, not one supplied by the request itself." },
+        "out_good_directory": { "type": "outcome", "result": "good", "score": 15, "feedback": "Correct. Verifying through a channel you already know is legitimate — like a company directory — breaks the attacker's control over the conversation. This is the core defense against business email compromise." },
+        "out_good_report": { "type": "outcome", "result": "good", "score": 12, "feedback": "Reporting instead of acting is the safe default. Slightly fewer points than independently verifying, since a real urgent request would still need to get handled — but you did not fall for the pressure." }
+      }
+    },
+
+    {
+      "id": "phish-003",
+      "category": "phishing",
+      "difficulty": "hard",
+      "title": "Spear-phished invoice targeting IT credentials",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "You work on the IT helpdesk. You receive an email that appears to come from a known software vendor you actually work with, referencing a real recent purchase order number, with an attached 'overdue_invoice.pdf.exe' file.",
+          "choices": [
+            { "text": "Open the attachment to check the invoice details", "next": "out_bad_opened" },
+            { "text": "Check the sender's actual email address before doing anything", "next": "n2" },
+            { "text": "Report the email immediately without opening anything", "next": "out_good_report_early" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "You hover over the sender name and see the real address: 'billing@vendor-support-invoices.net' — not the vendor's actual domain. The file extension is also '.exe', not '.pdf'.",
+          "choices": [
+            { "text": "It's probably fine since they knew the real PO number — open it", "next": "out_bad_opened_after_check" },
+            { "text": "Quarantine the email and report it to your security team with these details", "next": "n3" },
+            { "text": "Just delete the email and move on", "next": "out_neutral_deleted" }
+          ]
+        },
+        "n3": {
+          "type": "decision",
+          "narrative": "Security asks whether anyone else on the team may have received the same email, since the attacker clearly had accurate internal purchasing details.",
+          "choices": [
+            { "text": "Say you're not sure and leave it there", "next": "out_neutral_incomplete" },
+            { "text": "Proactively check with the purchasing team and warn coworkers who might get the same email", "next": "out_good_full_response" }
+          ]
+        },
+        "out_bad_opened": { "type": "outcome", "result": "bad", "score": -20, "feedback": "A '.exe' disguised as an invoice is a common malware delivery method. Knowing a real PO number doesn't confirm legitimacy — attackers often gather that detail from a prior breach or a compromised vendor contact." },
+        "out_bad_opened_after_check": { "type": "outcome", "result": "bad", "score": -20, "feedback": "You caught the red flags — a mismatched domain and a disguised executable — and opened it anyway. Accurate internal details actually make an attack more convincing, not more trustworthy; it usually means the attacker already has some foothold or leaked data to work from." },
+        "out_neutral_deleted": { "type": "outcome", "result": "neutral", "score": 5, "feedback": "Deleting protects you personally, but doesn't warn the rest of the organization, and security never learns the attacker has accurate purchasing data — which they could reuse against a coworker." },
+        "out_neutral_incomplete": { "type": "outcome", "result": "neutral", "score": 10, "feedback": "Reporting was correct, but stopping short of checking whether coworkers are also targeted leaves the rest of the organization exposed to the same attack." },
+        "out_good_report_early": { "type": "outcome", "result": "good", "score": 18, "feedback": "Reporting without opening anything is a strong, safe response. Full credit would also involve flagging that the attacker knew a real PO number, since that detail matters for the investigation." },
+        "out_good_full_response": { "type": "outcome", "result": "good", "score": 20, "feedback": "This is the complete response: you avoided the malicious file, escalated with the specific red flags, and proactively protected coworkers who might receive the same convincing email." }
+      }
+    },
+
+    {
+      "id": "tail-001",
+      "category": "tailgating",
+      "difficulty": "easy",
+      "title": "Held door at the badge entrance",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "You badge into the office's secure entrance. Someone in business casual clothes, carrying a laptop bag, jogs up behind you saying 'Hey, can you hold that? I forgot my badge at my desk upstairs.'",
+          "choices": [
+            { "text": "Hold the door open for them", "next": "out_bad" },
+            { "text": "Politely explain you can't let them in without a badge, and point them to the front desk to get a temporary one", "next": "out_good" },
+            { "text": "Let them in but ask them to walk with you to security to sort it out", "next": "out_neutral" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -10, "feedback": "Badge systems only work if every entry is actually verified. Looking legitimate isn't the same as being authorized — this is exactly how tailgating attacks succeed." },
+        "out_good": { "type": "outcome", "result": "good", "score": 10, "feedback": "Correct. Redirecting to the front desk keeps the badge system meaningful without being confrontational — legitimate employees and visitors will always have a way in through the desk." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 4, "feedback": "Better than just letting them walk off, but they're still inside the secure area unverified in the meantime. The safer move is to not let them past the door at all until they're verified." }
+      }
+    },
+
+    {
+      "id": "tail-002",
+      "category": "tailgating",
+      "difficulty": "medium",
+      "title": "Delivery person at the secure entrance",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "A person in a generic delivery uniform, carrying a box, no visible ID badge, approaches the secure entrance as you're badging in. 'Delivery for the 3rd floor, mind letting me through? I do this every week.'",
+          "choices": [
+            { "text": "Let them in — deliveries come through here all the time", "next": "out_bad" },
+            { "text": "Direct them to the front desk to sign in as a visitor", "next": "n2" },
+            { "text": "Ask for ID and call reception to confirm a delivery is expected", "next": "n2" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "The person sighs and says, 'Come on, I'm already late on my route, this happens every time, everyone else just lets me through.'",
+          "choices": [
+            { "text": "Give in and let them through since they seem frustrated", "next": "out_bad_gave_in" },
+            { "text": "Stay firm, and offer to carry the package to the front desk yourself instead", "next": "out_good" },
+            { "text": "Let them in just this once since they clearly know the building", "next": "out_bad_gave_in" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -15, "feedback": "A uniform and a box are trivially easy to fake, and 'I do this every week' is a social pressure line, not proof. Deliveries should go through a controlled reception process, not the secure badge door." },
+        "out_bad_gave_in": { "type": "outcome", "result": "bad", "score": -15, "feedback": "Frustration and claims that 'everyone else lets me through' are common manipulation tactics that rely on you not wanting to be the difficult one. Holding the boundary is the correct response even when it feels awkward." },
+        "out_good": { "type": "outcome", "result": "good", "score": 15, "feedback": "Correct. You kept the secure area controlled while still being helpful — offering to relay the package yourself resolves their stated need without letting an unverified person into a secure space." }
+      }
+    },
+
+    {
+      "id": "tail-003",
+      "category": "tailgating",
+      "difficulty": "hard",
+      "title": "The 'new hire' working toward the server room",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "Someone you don't recognize approaches the main badge entrance. 'Hey! I just started Monday on Priya Malhotra's team — she said someone would show me around but I think they forgot. Can you let me in? I left my temp badge at the front desk by mistake.'",
+          "choices": [
+            { "text": "Let them in — name-dropping your actual manager (Priya) makes it sound legitimate", "next": "out_bad_early" },
+            { "text": "Walk them back to the front desk yourself to get properly checked in", "next": "n2" },
+            { "text": "Call or message Priya directly to confirm before doing anything", "next": "n2" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "At the front desk, reception has no record of a new hire starting this week under that name. The person seems unbothered: 'That's so typical, HR always messes up the paperwork. Priya's expecting me in the server room actually, we're doing an infrastructure walkthrough.'",
+          "choices": [
+            { "text": "Since they clearly know details about the team, escort them toward the server room", "next": "out_bad_escalated" },
+            { "text": "Explain that without a verified badge or confirmation from Priya, they'll need to wait at the front desk", "next": "n3" },
+            { "text": "Quietly walk away and hope someone else deals with it", "next": "out_bad_avoided" }
+          ]
+        },
+        "n3": {
+          "type": "decision",
+          "narrative": "Priya, once reached, says she has no new hire starting and doesn't know this person. The individual has since wandered near the elevator bank alone.",
+          "choices": [
+            { "text": "Let it go now that you've done your part asking questions", "next": "out_neutral" },
+            { "text": "Notify building security immediately and stay with the situation until they arrive", "next": "out_good" }
+          ]
+        },
+        "out_bad_early": { "type": "outcome", "result": "bad", "score": -20, "feedback": "Knowing a manager's name is easy to gather from LinkedIn or a company directory. It sounds convincing precisely because it's designed to — that's a pretexting tactic layered onto a tailgating attempt." },
+        "out_bad_escalated": { "type": "outcome", "result": "bad", "score": -20, "feedback": "Escorting an unverified person toward a server room compounds the original mistake. Confident, specific-sounding claims ('infrastructure walkthrough') are a hallmark of social engineering, not proof of authorization." },
+        "out_bad_avoided": { "type": "outcome", "result": "bad", "score": -15, "feedback": "Walking away doesn't resolve the risk — it just leaves an unverified person unsupervised near sensitive areas. Once you've noticed something is wrong, disengaging isn't the same as reporting it." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 8, "feedback": "Asking questions was the right instinct, but once the story falls apart entirely, the situation needs to be escalated to security — not just quietly dropped." },
+        "out_good": { "type": "outcome", "result": "good", "score": 20, "feedback": "Correct, and this is the complete response. Verifying through a trusted channel (Priya directly) exposed the pretext, and escalating to security once it was confirmed false is exactly the right escalation path." }
+      }
+    },
+
+    {
+      "id": "pre-001",
+      "category": "pretexting",
+      "difficulty": "easy",
+      "title": "'IT support' asking for your password",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "You get a phone call: 'Hi, this is Alex from IT support, we're seeing some login errors on your account and need your current password to push a fix on our end.'",
+          "choices": [
+            { "text": "Give them your password so they can fix the issue", "next": "out_bad" },
+            { "text": "Tell them IT never needs your password, and offer to call the IT helpdesk's published number yourself", "next": "out_good" },
+            { "text": "Ask them to email you instructions instead", "next": "out_neutral" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -10, "feedback": "No legitimate IT department needs your password to fix anything — they have their own administrative access. This is a textbook pretexting call." },
+        "out_good": { "type": "outcome", "result": "good", "score": 10, "feedback": "Correct. Legitimate IT support never needs your password. Calling back through a number you already know and trust is the safest way to verify any unexpected IT request." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 4, "feedback": "This avoids giving up your password immediately, but a follow-up email could still be part of the same social engineering attempt. Verifying independently is safer than continuing the conversation on their terms." }
+      }
+    },
+
+    {
+      "id": "pre-002",
+      "category": "pretexting",
+      "difficulty": "medium",
+      "title": "The 'vendor auditor' requesting network details",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "Someone calls claiming to be an auditor from a security vendor your company actually uses. 'We're doing our annual compliance review and need your current network diagram and a list of internal server names to verify segmentation. This is time-sensitive for your compliance deadline.'",
+          "choices": [
+            { "text": "Send over what you have — compliance deadlines are important", "next": "out_bad" },
+            { "text": "Ask for their name and callback number, then verify with your actual vendor contact or manager before sending anything", "next": "n2" },
+            { "text": "Tell them you don't have access to that information", "next": "out_neutral" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "You reach your actual manager, who says your company doesn't have a compliance deadline this quarter and no audit was scheduled with that vendor.",
+          "choices": [
+            { "text": "Call the person back and tell them you can't help, ending the interaction there", "next": "out_neutral_ended" },
+            { "text": "Report the call to your security team with the details you gathered (claimed name, callback number, what was requested)", "next": "out_good" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -15, "feedback": "Network diagrams and server names are exactly what an attacker needs to plan a real intrusion. A claimed compliance deadline is a pressure tactic — real audits are scheduled and verifiable in advance." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 6, "feedback": "This avoids leaking information, but doesn't verify the caller's legitimacy or alert anyone else who might get the same call." },
+        "out_neutral_ended": { "type": "outcome", "result": "neutral", "score": 10, "feedback": "You avoided giving up sensitive information, which is the most important part. Reporting the attempt would help protect coworkers who might get the same call." },
+        "out_good": { "type": "outcome", "result": "good", "score": 15, "feedback": "Correct. You protected sensitive network information, verified through a trusted internal channel, and reported the details so security can warn others and potentially trace the attempt." }
+      }
+    },
+
+    {
+      "id": "pre-003",
+      "category": "pretexting",
+      "difficulty": "hard",
+      "title": "A slow-building relationship that turns into a request",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "Over the past three weeks, someone claiming to be a recruiter has been messaging you on a professional networking site, complimenting your work and discussing a great job opportunity at a well-known company. Today they email from what looks like a personal account: 'Quick favor before our call tomorrow — can you send over an org chart or team directory so I understand who you work with? Helps me tailor the role.'",
+          "choices": [
+            { "text": "Send the org chart — they've been friendly and this seems like a normal ask", "next": "out_bad_shared" },
+            { "text": "Decline to share internal information, but continue the conversation normally", "next": "n2" },
+            { "text": "Stop responding and report the messages to security right away", "next": "out_good_early" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "The 'recruiter' pushes a bit: 'No worries at all, totally understand — actually, would you be open to a quick call now instead of tomorrow? I'd love to also hear about any security tools or vendors your team uses, just curious about your tech stack.'",
+          "choices": [
+            { "text": "Take the call and discuss your team's tools since it's just a casual conversation", "next": "out_bad_call" },
+            { "text": "Recognize the pattern of escalating requests for internal information and cut off contact", "next": "n3" },
+            { "text": "Ignore the message without reporting it anywhere", "next": "out_neutral_ignored" }
+          ]
+        },
+        "n3": {
+          "type": "decision",
+          "narrative": "You've now noticed a multi-week pattern: flattery, rapport-building, then escalating requests for internal information disguised as recruiting small talk.",
+          "choices": [
+            { "text": "Block the account and consider it handled", "next": "out_neutral_blocked" },
+            { "text": "Report the full pattern to security, including screenshots of the conversation over time", "next": "out_good_full" }
+          ]
+        },
+        "out_bad_shared": { "type": "outcome", "result": "bad", "score": -20, "feedback": "Org charts reveal exactly who to target next and how your organization is structured — valuable reconnaissance for a further attack. A weeks-long friendly relationship is often itself the pretext, designed to lower your guard before the real ask." },
+        "out_bad_call": { "type": "outcome", "result": "bad", "score": -20, "feedback": "Requests for your security tools and vendors are reconnaissance, not small talk — that information helps an attacker plan around your actual defenses. The gradual escalation from 'org chart' to 'security tools' is a deliberate pattern." },
+        "out_neutral_ignored": { "type": "outcome", "result": "neutral", "score": 8, "feedback": "Not engaging further protects you, but without reporting it, security never learns about the pattern, and a coworker could be targeted the same way next." },
+        "out_neutral_blocked": { "type": "outcome", "result": "neutral", "score": 10, "feedback": "Blocking stops it from continuing toward you specifically, but the full multi-week pattern — which would help security identify and warn about this actor — goes unreported." },
+        "out_good_early": { "type": "outcome", "result": "good", "score": 16, "feedback": "Recognizing the request as inappropriate and reporting early is a strong response, cutting off the relationship before more information could be extracted." },
+        "out_good_full": { "type": "outcome", "result": "good", "score": 20, "feedback": "This is the complete response. You recognized a long-term social engineering pattern rather than judging each message in isolation, and reported the full history so security has real evidence to act on." }
+      }
+    }
+
+  ]
+}
