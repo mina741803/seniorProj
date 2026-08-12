@@ -35,8 +35,8 @@ class ScenarioLoader
     }
 
     /**
-     * Lightweight summaries for a future scenario-select screen —
-     * not used by the demo yet, but the API will want this soon.
+     * Summaries used to build the client-side shuffled play order and to
+     * compute the total possible score for the performance-percentage bar.
      */
     public function allScenarioSummaries(): array
     {
@@ -48,9 +48,27 @@ class ScenarioLoader
                 'title'      => $scenario['title'],
                 'category'   => $scenario['category'],
                 'difficulty' => $scenario['difficulty'],
+                'max_score'  => $this->maxScoreForScenario($scenario),
             ];
         }
 
         return $summaries;
+    }
+
+    /**
+     * The highest score reachable in a scenario — the score of its best
+     * outcome node. Used to compute "earned / max possible" as a percentage.
+     */
+    private function maxScoreForScenario(array $scenario): int
+    {
+        $max = 0;
+
+        foreach ($scenario['nodes'] as $node) {
+            if ($node['type'] === 'outcome' && $node['score'] > $max) {
+                $max = $node['score'];
+            }
+        }
+
+        return $max;
     }
 }

@@ -1,10 +1,11 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "schema_notes": {
     "scenario": "id, category, difficulty, title, start_node, nodes{}",
     "node_decision": "{ type: 'decision', narrative, choices: [{ text, next }] }",
     "node_outcome": "{ type: 'outcome', result: 'good'|'neutral'|'bad', score, feedback }",
-    "scoring": "easy outcomes +/-10, medium +/-15, hard +/-20, neutral choices score 0-5"
+    "scoring": "easy outcomes +/-10, medium +/-15, hard +/-20, neutral choices score 0-8",
+    "categories": "phishing | tailgating | pretexting | mixed"
   },
   "scenarios": [
 
@@ -106,6 +107,79 @@
     },
 
     {
+      "id": "phish-004",
+      "category": "phishing",
+      "difficulty": "easy",
+      "title": "IT password reset — SSO upgrade",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "An email from 'IT-Notifications@your-company-support.net' reads: 'Our single sign-on system is being upgraded tonight. Click below and re-enter your credentials now to avoid being locked out tomorrow morning.'",
+          "choices": [
+            { "text": "Click the link and re-enter your login to avoid being locked out", "next": "out_bad" },
+            { "text": "Go directly to the SSO portal by typing the URL yourself, without using the email's link", "next": "out_good" },
+            { "text": "Ignore the email entirely", "next": "out_neutral" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -10, "feedback": "Legitimate system upgrades don't require you to 're-verify' credentials through an emailed link, and the sender domain isn't your company's real one. This is a credential-harvesting page." },
+        "out_good": { "type": "outcome", "result": "good", "score": 10, "feedback": "Correct. Going directly to a known, trusted URL instead of clicking an emailed link sidesteps the trick, regardless of how convincing the email looks." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 3, "feedback": "Ignoring it avoids the trap, but doesn't warn IT that a spoofed 'SSO upgrade' email is circulating, which could catch a less cautious coworker." }
+      }
+    },
+
+    {
+      "id": "phish-005",
+      "category": "phishing",
+      "difficulty": "medium",
+      "title": "Executive gift card request",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "A text arrives from an unfamiliar number: 'Hey, it's [your manager], stuck in back-to-back meetings. Can you grab 5 $100 Amazon gift cards for a client thank-you and text me the codes? I'll reimburse you today.'",
+          "choices": [
+            { "text": "Buy the gift cards and text the codes since it's time-sensitive", "next": "out_bad" },
+            { "text": "Reply asking them to call you instead of texting", "next": "n2" },
+            { "text": "Contact your manager through a known channel to confirm before doing anything", "next": "out_good" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "The 'manager' replies: 'Can't call right now, in the meeting, just need this handled quickly, really appreciate it.'",
+          "choices": [
+            { "text": "Go ahead and buy the cards since they explained why they can't call", "next": "out_bad" },
+            { "text": "Still verify through a channel you already know is really them before doing anything", "next": "out_good" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -15, "feedback": "Gift card codes are functionally untraceable cash, and 'can't talk right now, just need this fast' is a classic pressure line used specifically to block verification." },
+        "out_good": { "type": "outcome", "result": "good", "score": 15, "feedback": "Correct. An unfamiliar number claiming to be someone you know should always be verified through a channel you already trust, especially before purchasing anything." }
+      }
+    },
+
+    {
+      "id": "phish-006",
+      "category": "phishing",
+      "difficulty": "easy",
+      "title": "Shipping notification smishing",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "A text reads: 'USPS: Your package could not be delivered due to an incomplete address. Update your info within 24 hours: usps-redelivery-check.com'",
+          "choices": [
+            { "text": "Tap the link and enter your address to fix it", "next": "out_bad" },
+            { "text": "Delete the text without clicking anything", "next": "out_neutral" },
+            { "text": "Check tracking directly on usps.com for a package you're actually expecting", "next": "out_good" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -10, "feedback": "'usps-redelivery-check.com' isn't an official USPS domain. This is a smishing (SMS phishing) attempt designed to harvest personal or payment details." },
+        "out_good": { "type": "outcome", "result": "good", "score": 10, "feedback": "Correct. Going straight to the carrier's real, known website is the safest way to check on an actual delivery, sidestepping any lookalike link entirely." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 4, "feedback": "Deleting it keeps you safe personally, but doesn't help anyone else on your team who might get the identical text." }
+      }
+    },
+
+    {
       "id": "tail-001",
       "category": "tailgating",
       "difficulty": "easy",
@@ -196,6 +270,64 @@
         "out_bad_avoided": { "type": "outcome", "result": "bad", "score": -15, "feedback": "Walking away doesn't resolve the risk — it just leaves an unverified person unsupervised near sensitive areas. Once you've noticed something is wrong, disengaging isn't the same as reporting it." },
         "out_neutral": { "type": "outcome", "result": "neutral", "score": 8, "feedback": "Asking questions was the right instinct, but once the story falls apart entirely, the situation needs to be escalated to security — not just quietly dropped." },
         "out_good": { "type": "outcome", "result": "good", "score": 20, "feedback": "Correct, and this is the complete response. Verifying through a trusted channel (Priya directly) exposed the pretext, and escalating to security once it was confirmed false is exactly the right escalation path." }
+      }
+    },
+
+    {
+      "id": "tail-004",
+      "category": "tailgating",
+      "difficulty": "easy",
+      "title": "Fake contractor / technician",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "A person carrying a clipboard and toolbox, wearing a shirt with a generic-looking logo, approaches the secure entrance: 'I'm here to check the HVAC system on this floor, should only take a few minutes.'",
+          "choices": [
+            { "text": "Let them in since they clearly came prepared with tools", "next": "out_bad" },
+            { "text": "Ask them to check in at the front desk first, since all vendor visits should be logged there", "next": "out_good" },
+            { "text": "Ask who scheduled the visit before deciding", "next": "n2" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "They say, 'Building management set it up, should be in the system.'",
+          "choices": [
+            { "text": "That sounds reasonable, let them through", "next": "out_bad" },
+            { "text": "Still send them to the front desk to be checked in and verified", "next": "out_good" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -10, "feedback": "A clipboard and a generic uniform are trivial to fake. Legitimate vendor work is scheduled and logged — the front desk exists specifically to verify this." },
+        "out_good": { "type": "outcome", "result": "good", "score": 10, "feedback": "Correct. Routing any unscheduled or unverified visitor through the front desk keeps the badge system meaningful without you having to personally judge who's telling the truth." }
+      }
+    },
+
+    {
+      "id": "tail-005",
+      "category": "tailgating",
+      "difficulty": "medium",
+      "title": "Lost visitor on a restricted floor",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "Someone without a visitor badge is wandering a restricted floor. 'Sorry, I think I got turned around, I'm looking for a conference room for a 2pm meeting.'",
+          "choices": [
+            { "text": "Point them toward the elevators and continue on your way", "next": "out_bad" },
+            { "text": "Walk them back to the front desk or reception to get properly checked in", "next": "n2" },
+            { "text": "Ask which meeting and who they're meeting with first", "next": "n2" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "At the front desk, there's no visitor log entry matching their name or claimed meeting.",
+          "choices": [
+            { "text": "They probably just weren't logged properly, let them continue on", "next": "out_bad" },
+            { "text": "Have reception contact the person they claim to be meeting, or notify security", "next": "out_good" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -15, "feedback": "An unbadged person on a restricted floor with a story that doesn't check out at the front desk is exactly what visitor logs exist to catch. Assuming a clerical error lets a genuine problem walk away." },
+        "out_good": { "type": "outcome", "result": "good", "score": 15, "feedback": "Correct. Verifying through reception and escalating when the story doesn't check out protects against someone using a plausible cover story to explore restricted areas." }
       }
     },
 
@@ -291,6 +423,148 @@
         "out_neutral_blocked": { "type": "outcome", "result": "neutral", "score": 10, "feedback": "Blocking stops it from continuing toward you specifically, but the full multi-week pattern — which would help security identify and warn about this actor — goes unreported." },
         "out_good_early": { "type": "outcome", "result": "good", "score": 16, "feedback": "Recognizing the request as inappropriate and reporting early is a strong response, cutting off the relationship before more information could be extracted." },
         "out_good_full": { "type": "outcome", "result": "good", "score": 20, "feedback": "This is the complete response. You recognized a long-term social engineering pattern rather than judging each message in isolation, and reported the full history so security has real evidence to act on." }
+      }
+    },
+
+    {
+      "id": "pre-004",
+      "category": "pretexting",
+      "difficulty": "easy",
+      "title": "Vendor account verification call",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "A caller says: 'Hi, this is Jordan from a SaaS vendor you actually use. We're doing a routine account verification — can you confirm your admin login so I can check your account settings?'",
+          "choices": [
+            { "text": "Give them the login to help resolve it quickly", "next": "out_bad" },
+            { "text": "Tell them you'll call the vendor back using the support number from their official website", "next": "out_good" },
+            { "text": "Ask them to email you documentation of the request first", "next": "out_neutral" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -10, "feedback": "No legitimate vendor support call needs your actual login credentials to 'verify' an account — they have their own backend access. This is a pretexting attempt." },
+        "out_good": { "type": "outcome", "result": "good", "score": 10, "feedback": "Correct. Calling back through a number you found independently, not one the caller gave you, breaks their control over the conversation entirely." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 4, "feedback": "Asking for documentation is a reasonable instinct, but a convincing fake email could just continue the same pretext. Verifying through an independently found contact channel is safer." }
+      }
+    },
+
+    {
+      "id": "pre-005",
+      "category": "pretexting",
+      "difficulty": "medium",
+      "title": "Survey / research call",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "Someone calls claiming to be a graduate researcher studying workplace technology adoption. The questions start harmless — job title, team size — then shift: 'And what security software or monitoring tools does your company use day to day?'",
+          "choices": [
+            { "text": "Answer since it's just a survey, not a big deal", "next": "out_bad" },
+            { "text": "Decline to answer questions about internal tools or security software specifically", "next": "n2" },
+            { "text": "Hang up immediately without saying anything further", "next": "out_neutral" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "They push gently: 'No worries, it's totally anonymous, just helps with the research.'",
+          "choices": [
+            { "text": "Go ahead and answer since it's anonymous", "next": "out_bad" },
+            { "text": "Politely end the call and mention it to your security team", "next": "out_good" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -15, "feedback": "Details about the specific security tools and monitoring software in use are exactly what an attacker needs to plan around your defenses. A 'survey' framing makes it feel low-stakes, which is the point." },
+        "out_good": { "type": "outcome", "result": "good", "score": 15, "feedback": "Correct. Declining to share security-relevant details and reporting the call protects the organization even if the caller's intent turns out to be genuinely harmless." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 6, "feedback": "Hanging up avoids giving anything away, but reporting the call would help security recognize a pattern if the same call targets other employees." }
+      }
+    },
+
+    {
+      "id": "mixed-001",
+      "category": "mixed",
+      "difficulty": "hard",
+      "title": "Combo attack: tailgate + pretext",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "Someone tailgates in behind you through the badge door, then walks confidently up to a coworker's desk: 'Hey, IT sent me to check this workstation, there's a ticket open for it.'",
+          "choices": [
+            { "text": "Since they're already inside, assume someone else already verified them", "next": "out_bad" },
+            { "text": "Ask them directly which IT team they're with and who opened the ticket", "next": "n2" },
+            { "text": "Immediately ask them to leave and contact security", "next": "n2" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "They give a vague answer: 'Just general IT, not sure of the ticket number offhand, it was assigned this morning.'",
+          "choices": [
+            { "text": "That's plausible enough, let them proceed", "next": "out_bad" },
+            { "text": "Contact your actual IT helpdesk directly to confirm whether a ticket exists for this desk", "next": "n3" }
+          ]
+        },
+        "n3": {
+          "type": "decision",
+          "narrative": "IT helpdesk confirms no ticket exists for that workstation and no technician was dispatched.",
+          "choices": [
+            { "text": "Let it go now that you've asked enough questions", "next": "out_neutral" },
+            { "text": "Notify security immediately and stay nearby until they arrive", "next": "out_good" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -20, "feedback": "Getting past the badge door doesn't mean someone was verified — it just means the first line of defense failed. A vague, unverifiable IT story compounds the original tailgating success into direct access to a workstation." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 8, "feedback": "Asking questions was right, but once the story is confirmed false, stopping short of notifying security leaves the person free to keep moving through the building." },
+        "out_good": { "type": "outcome", "result": "good", "score": 20, "feedback": "Correct, and this is the complete response. Verifying the IT ticket through a real channel exposed the pretext, and escalating to security once confirmed false closes the loop this scenario is testing." }
+      }
+    },
+
+    {
+      "id": "mixed-002",
+      "category": "mixed",
+      "difficulty": "hard",
+      "title": "Slow-burn trust building",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "Over several weeks, someone claiming to be from a partner company you occasionally work with has been friendly in email threads, cc'd appropriately, seemingly legitimate. This week they email: 'I'll be swinging by your building Thursday for our project — could you leave a guest badge for me at your desk instead of going through the front desk? Easier since I'm only there briefly.'",
+          "choices": [
+            { "text": "Sure, leave a badge at your desk — they've been a legitimate contact for weeks", "next": "out_bad" },
+            { "text": "Tell them the front desk visitor process still applies, and confirm the visit with your own manager or team", "next": "n2" },
+            { "text": "Ignore the request and hope it doesn't come up", "next": "out_neutral" }
+          ]
+        },
+        "n2": {
+          "type": "decision",
+          "narrative": "Your manager has no record of this partner visit being scheduled, and can't confirm the person's identity beyond the email thread itself.",
+          "choices": [
+            { "text": "Since the emails seemed legitimate for weeks, accommodate the badge request anyway", "next": "out_bad" },
+            { "text": "Stick with the standard visitor process and flag the unconfirmed visit to security", "next": "out_good" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -20, "feedback": "Weeks of seemingly normal email contact doesn't verify identity for a physical building visit, and bypassing the front desk process defeats its entire purpose. A long, low-effort rapport-building period is itself a known pretexting pattern." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 8, "feedback": "Avoiding the request sidesteps the immediate risk, but doesn't address whether this is a genuine security concern worth flagging." },
+        "out_good": { "type": "outcome", "result": "good", "score": 20, "feedback": "Correct. Long-standing friendliness in email doesn't substitute for the actual visitor verification process, and flagging an unconfirmed, unusual request — even from a seemingly known contact — is the right instinct." }
+      }
+    },
+
+    {
+      "id": "mixed-003",
+      "category": "mixed",
+      "difficulty": "medium",
+      "title": "Insider threat ambiguity",
+      "start_node": "n1",
+      "nodes": {
+        "n1": {
+          "type": "decision",
+          "narrative": "A coworker you know well, who has been visibly frustrated about being passed over for a promotion, asks you to help them access a shared drive folder that's outside their normal permissions: 'I just need it for something quick, don't make a whole thing out of it.'",
+          "choices": [
+            { "text": "Help them out — you know them and it seems harmless", "next": "out_bad" },
+            { "text": "Decline, and suggest they request access properly through their manager or IT", "next": "out_good" },
+            { "text": "Help them this once, but ask them not to make it a habit", "next": "out_neutral" }
+          ]
+        },
+        "out_bad": { "type": "outcome", "result": "bad", "score": -15, "feedback": "Trusting someone personally doesn't substitute for proper access controls, especially when the request is for access outside their normal permissions and comes with pressure not to 'make a thing of it.' Insider threats are harder to catch precisely because they come from people you know." },
+        "out_good": { "type": "outcome", "result": "good", "score": 15, "feedback": "Correct. Redirecting the request through the proper access channel protects both of you — if it's genuinely harmless, IT can grant it quickly and correctly; if it isn't, you haven't been the one to bypass controls." },
+        "out_neutral": { "type": "outcome", "result": "neutral", "score": 5, "feedback": "This avoids being the sole point of failure, but access controls exist because 'just this once' requests are precisely how they erode. The proper channel should still be used every time, not just noted for later." }
       }
     }
 
