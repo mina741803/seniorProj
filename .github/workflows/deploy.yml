@@ -11,10 +11,14 @@ jobs:
       - name: Checkout latest code
         uses: actions/checkout@v4
 
+      - name: Sync code into the live app folder
+        run: |
+          rsync -a --exclude='.git' --exclude='venv' --exclude='.env' ./ /home/runner-svc/seniorProj/
+
       - name: Install dependencies
         run: |
           source /home/runner-svc/seniorProj/venv/bin/activate
-          pip install -r requirements.txt
+          pip install -r /home/runner-svc/seniorProj/requirements.txt
 
       - name: Restart the app service
         run: sudo systemctl restart trainer-app
