@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Awareness Trainer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="navbar-wordmark">Security Awareness Trainer</span>
+        </div>
+        <div class="navbar-right">
+            <span id="overall-score" class="overall-score">Score: 0 / 0</span>
+            <button id="reset-button" class="reset-button" type="button">Reset</button>
+            <span class="user-pill">{{ username }}</span>
+            <form method="POST" action="{{ url_for('logout') }}">
+                <button class="logout-button" type="submit">Log Out</button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <div class="progress-track">
+            <div id="progress-fill" class="progress-fill"></div>
+            <span id="progress-label" class="progress-label">0%</span>
+        </div>
+
+        <div id="app-root"></div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>

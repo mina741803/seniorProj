@@ -1,0 +1,329 @@
+:root {
+  --bg: #0b0e14;
+  --card-bg: #1a2130;
+  --card-bg-alt: #212a3d;
+  --border: #2c3650;
+  --text: #e8ecf4;
+  --text-muted: #9aa5bd;
+  --accent: #5b7cfa;
+  --correct: #3ecf8e;
+  --incorrect: #f56565;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 32px;
+}
+
+.navbar-wordmark {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.overall-score {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.reset-button {
+  background: var(--card-bg-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.reset-button:hover { background: var(--border); }
+
+.page-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 32px 60px;
+}
+
+.progress-track {
+  position: relative;
+  height: 30px;
+  background: var(--card-bg-alt);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.progress-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 0%;
+  background: linear-gradient(90deg, #f2994a, #f2c94c, #3ecf8e);
+  transition: width 0.4s ease;
+}
+
+.progress-label {
+  position: relative;
+  z-index: 2;
+  display: block;
+  text-align: center;
+  line-height: 30px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Category grid */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.category-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.category-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.category-card.complete {
+  opacity: 0.65;
+}
+
+.category-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.category-meta {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.category-badge {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--card-bg-alt);
+  color: var(--correct);
+}
+
+/* Game card */
+.game-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.back-link {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  padding: 0;
+}
+.back-link:hover { color: var(--text); }
+
+.scenario-text {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin-bottom: 28px;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.option-button {
+  background: var(--card-bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.option-button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.option-button:disabled {
+  cursor: default;
+}
+.option-button.correct {
+  border-color: var(--correct);
+  background: rgba(62, 207, 142, 0.12);
+}
+.option-button.incorrect {
+  border-color: var(--incorrect);
+  background: rgba(245, 101, 101, 0.12);
+}
+
+.result-badge {
+  display: inline-block;
+  margin: 24px 0 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-size: 0.85rem;
+  padding: 6px 18px;
+  border-radius: 999px;
+}
+.result-badge.correct {
+  color: var(--correct);
+  background: rgba(62, 207, 142, 0.14);
+}
+.result-badge.incorrect {
+  color: var(--incorrect);
+  background: rgba(245, 101, 101, 0.14);
+}
+
+.explanation-text {
+  color: var(--text-muted);
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.primary-button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.primary-button:hover { filter: brightness(1.1); }
+
+.category-complete-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+/* Login page */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-title {
+  font-size: 1.3rem;
+  margin: 0 0 4px;
+}
+
+.login-subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 24px;
+}
+
+.login-error {
+  background: rgba(245, 101, 101, 0.14);
+  color: var(--incorrect);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 18px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 14px 0 6px;
+}
+
+.login-input {
+  background: var(--card-bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+}
+.login-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.login-submit {
+  margin-top: 22px;
+  width: 100%;
+}
+
+.user-pill {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.logout-button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.logout-button:hover {
+  color: var(--text);
+  border-color: var(--incorrect);
+}

@@ -1,0 +1,415 @@
+{
+  "categories": [
+    { "id": "phishing", "name": "Phishing" },
+    { "id": "vishing", "name": "Vishing" },
+    { "id": "smishing", "name": "Smishing" },
+    { "id": "pretexting", "name": "Pretexting" },
+    { "id": "tailgating", "name": "Tailgating" },
+    { "id": "bec", "name": "Business Email Compromise" },
+    { "id": "usb_media", "name": "USB & Media Baiting" },
+    { "id": "ai_voice", "name": "AI Voice & Deepfake Scams" },
+    { "id": "physical_security", "name": "Physical Security" },
+    { "id": "mfa_fatigue", "name": "MFA Fatigue (Push Bombing)" }
+  ],
+  "questions": [
+    {
+      "id": "phishing-1",
+      "category": "phishing",
+      "prompt": "You get an email that looks like it's from Microsoft 365, warning your password expires in 2 hours. The link goes to 'microsoft0nline-login.com'. What do you do?",
+      "options": [
+        "Click the link quickly before the password expires",
+        "Reply to the email asking if it's legitimate",
+        "Don't click anything \u2014 go directly to portal.office.com yourself or report it to IT",
+        "Forward it to a coworker to see if they got the same one"
+      ],
+      "correct_index": 2,
+      "explanation": "The domain 'microsoft0nline-login.com' is not a real Microsoft domain (note the zero instead of 'o', and the extra hyphenated words) \u2014 a classic lookalike-domain trick. Urgency plus a mismatched URL is the core phishing pattern. Always navigate to sensitive sites directly rather than through emailed links, and report suspicious emails to IT/security."
+    },
+    {
+      "id": "phishing-2",
+      "category": "phishing",
+      "prompt": "An email claiming to be from your HR department asks you to 'review and confirm' updated benefits info by clicking a button. The sender address is hr-benefits@company-hr-portal.net, not your company's actual domain.",
+      "options": [
+        "Click through since it mentions benefits, which is a normal HR topic",
+        "Verify with HR directly through a known internal channel before clicking anything",
+        "Open it in an incognito browser window to be safe",
+        "Forward it to your personal email to check later"
+      ],
+      "correct_index": 1,
+      "explanation": "A mismatched sending domain is one of the strongest phishing indicators, even when the content looks plausible. Incognito mode does not protect you from credential theft or malware. The safe move is verifying through a separate, known-good channel (like Slack, an internal HR system, or calling HR) before interacting with the email at all."
+    },
+    {
+      "id": "phishing-3",
+      "category": "phishing",
+      "prompt": "You receive a shared 'invoice' via a Google Docs link from an unfamiliar sender, with the subject 'URGENT: Overdue Payment Attached'. What's the safest action?",
+      "options": [
+        "Open the doc since Google Docs is generally safe",
+        "Report it as phishing and delete it without opening the link",
+        "Open the link but don't enter any credentials",
+        "Reply asking for more details about the invoice"
+      ],
+      "correct_index": 1,
+      "explanation": "Attackers frequently abuse legitimate platforms like Google Docs to host phishing pages or credential-harvesting forms, since the link itself passes spam filters. An urgent, unexpected invoice from an unknown sender is a red flag regardless of what platform hosts it \u2014 report and delete rather than investigating it yourself."
+    },
+
+    {
+      "id": "vishing-1",
+      "category": "vishing",
+      "prompt": "You get a phone call from someone claiming to be 'IT Support' saying your laptop is sending out malware and they need your VPN credentials immediately to stop it. What should you do?",
+      "options": [
+        "Give the credentials since it sounds urgent and IT-related",
+        "Hang up and contact IT through a known, verified internal number",
+        "Ask them to email you instead",
+        "Give a slightly wrong password to see what they do"
+      ],
+      "correct_index": 1,
+      "explanation": "Legitimate IT departments will never ask for your password or credentials over an unsolicited phone call. The pressure and urgency are manipulation tactics. Always hang up and independently verify through a number or channel you already know is real \u2014 never one the caller provides."
+    },
+    {
+      "id": "vishing-2",
+      "category": "vishing",
+      "prompt": "A caller says they're from your bank's fraud department and asks you to 'confirm your identity' by reading back a one-time passcode that was just texted to you.",
+      "options": [
+        "Read the code since it's your own bank verifying you",
+        "Refuse, hang up, and call your bank back using the number on your card",
+        "Ask them to text you the code again",
+        "Give only the last two digits of the code as a compromise"
+      ],
+      "correct_index": 1,
+      "explanation": "A real bank never needs you to read back a one-time passcode \u2014 that code exists specifically to prove a transaction request came from you, and a scammer asking for it is trying to authorize something in your name. Hang up and call the number printed on your card or statement, not one given by the caller."
+    },
+    {
+      "id": "vishing-3",
+      "category": "vishing",
+      "prompt": "Someone calls claiming to be a vendor's tech support, referencing your company by name and asking you to install a 'remote access tool' to fix a ticket you don't remember opening.",
+      "options": [
+        "Install it since they clearly know details about your company",
+        "Decline, hang up, and verify through your actual IT/vendor management team",
+        "Install it but watch what they do on screen",
+        "Ask a coworker if they opened the ticket"
+      ],
+      "correct_index": 1,
+      "explanation": "Knowing your company's name is trivial for an attacker to find (LinkedIn, your own website, prior data breaches) and isn't proof of legitimacy. Unsolicited requests to install remote-access software are a classic vector for full system compromise. Verify independently through your actual vendor contact or IT team before granting any remote access."
+    },
+
+    {
+      "id": "smishing-1",
+      "category": "smishing",
+      "prompt": "You get a text: 'Your package could not be delivered. Update your address here: [shortened link]'. You weren't expecting a package.",
+      "options": [
+        "Click the link just to check, since it's just a delivery update",
+        "Delete the text and, if concerned, check tracking directly through the carrier's official app or site",
+        "Reply STOP to unsubscribe",
+        "Forward it to a friend to see if they got it too"
+      ],
+      "correct_index": 1,
+      "explanation": "Shortened links hide the real destination, and unexpected delivery texts are one of the most common smishing lures. Replying 'STOP' can confirm to scammers that your number is active, inviting more attempts. If you want to check, go directly to the carrier's real app or site instead of the link."
+    },
+    {
+      "id": "smishing-2",
+      "category": "smishing",
+      "prompt": "A text appears to come from your company's payroll system: 'Your direct deposit failed. Update your bank info now: [link]'.",
+      "options": [
+        "Update it quickly so your next paycheck isn't delayed",
+        "Verify with HR/payroll directly through a known channel before clicking anything",
+        "Text back asking which account failed",
+        "Click the link but close it before entering info"
+      ],
+      "correct_index": 1,
+      "explanation": "Payroll and direct-deposit changes are a high-value target for attackers because a successful one redirects your actual paycheck. Legitimate payroll issues are handled through your company's real HR system, not an unsolicited text link. Always verify through a separate, trusted channel first."
+    },
+    {
+      "id": "smishing-3",
+      "category": "smishing",
+      "prompt": "You receive a text claiming to be a 2FA code request you didn't initiate, followed by a second text saying 'If this wasn't you, click here to secure your account.'",
+      "options": [
+        "Click the link immediately to secure the account",
+        "Ignore both texts, since no code was entered anyway",
+        "Don't click the link; instead log into the real service directly and change your password if concerned",
+        "Reply to the text asking who is trying to log in"
+      ],
+      "correct_index": 2,
+      "explanation": "This is a manipulation technique: the first text creates alarm, and the second offers a 'helpful' link that's actually the actual phishing payload. The safe move is never following links from unsolicited security texts \u2014 go directly to the real service yourself if you want to check or change anything."
+    },
+
+    {
+      "id": "pretexting-1",
+      "category": "pretexting",
+      "prompt": "Someone calls the front desk claiming to be a 'new contractor' who forgot their badge and needs someone to let them into the server room, name-dropping your IT manager.",
+      "options": [
+        "Let them in since they know the manager's name",
+        "Politely decline and verify their identity and access with the named manager directly before allowing entry",
+        "Ask them to wait outside until someone official arrives, but let them keep their bag inside",
+        "Give them directions and let them find their own way in"
+      ],
+      "correct_index": 1,
+      "explanation": "Name-dropping a real employee is a common pretexting tactic to build false trust \u2014 the name may have been found on LinkedIn or a company directory. Physical access to sensitive areas should always be verified directly with the referenced person before granting entry, regardless of how confident or knowledgeable the requester sounds."
+    },
+    {
+      "id": "pretexting-2",
+      "category": "pretexting",
+      "prompt": "An email from someone claiming to be a 'new auditor' asks you to send over a spreadsheet of employee usernames and department codes 'for a compliance review'.",
+      "options": [
+        "Send it since compliance reviews are normal and routine",
+        "Verify the requester's identity and the review's legitimacy with your manager or compliance team first",
+        "Send a smaller portion of the data as a compromise",
+        "Ask them to fill out an internal form instead"
+      ],
+      "correct_index": 1,
+      "explanation": "Attackers often invent a plausible-sounding role (auditor, new hire, vendor rep) to justify a data request that would otherwise seem suspicious. Any request for internal data \u2014 especially usernames or org structure info that could enable further attacks \u2014 should be verified through a known internal contact before being fulfilled."
+    },
+    {
+      "id": "pretexting-3",
+      "category": "pretexting",
+      "prompt": "A caller claiming to be from your company's insurance provider asks to 'confirm' your full name, date of birth, and SSN to 'update records' after a supposed system migration.",
+      "options": [
+        "Provide the info since insurance providers legitimately have this data anyway",
+        "Decline and call your insurance provider back using the number on your actual policy documents",
+        "Give a partial answer, like just your birth year",
+        "Ask them to send a written confirmation request instead"
+      ],
+      "correct_index": 1,
+      "explanation": "Even though your real insurer does have this data, that's exactly why it's a common pretext \u2014 attackers exploit the fact that the ask sounds routine. Never confirm sensitive personal identifiers to an inbound caller; call back using a number from an official document you already have, not one the caller gives you."
+    },
+
+    {
+      "id": "tailgating-1",
+      "category": "tailgating",
+      "prompt": "You badge into a secure office entrance and someone behind you, carrying a large box and no visible badge, asks you to hold the door.",
+      "options": [
+        "Hold the door \u2014 it would be rude not to help someone carrying a heavy box",
+        "Politely ask them to badge in themselves or direct them to the front desk to be signed in",
+        "Hold the door but watch where they go",
+        "Ask them who they're visiting before holding the door"
+      ],
+      "correct_index": 1,
+      "explanation": "This is a classic tailgating setup \u2014 carrying something bulky is a common excuse to get someone else to open a secured door. Politeness should never override access control; the appropriate response is directing them to badge in or check in at the front desk, not personally vouching for their entry."
+    },
+    {
+      "id": "tailgating-2",
+      "category": "tailgating",
+      "prompt": "A person in a delivery uniform tries to follow you through a badge-access door into a restricted area, saying they 'do this delivery every week.'",
+      "options": [
+        "Let them through since they seem familiar with the routine",
+        "Ask them to check in at the front desk or loading dock instead of using the employee entrance",
+        "Let them in but tell them not to wander",
+        "Ask to see the delivery paperwork before deciding"
+      ],
+      "correct_index": 1,
+      "explanation": "A uniform and familiarity with a routine are easy to fake or observe, and don't verify legitimate access. Deliveries should go through a designated, monitored entrance (loading dock, front desk) rather than employee-only badge doors, regardless of how routine the person makes it sound."
+    },
+    {
+      "id": "tailgating-3",
+      "category": "tailgating",
+      "prompt": "You're heading into a restricted lab area and a coworker you don't recognize, wearing a lanyard with no visible badge photo, walks in right behind you without scanning.",
+      "options": [
+        "Assume it's fine since they're wearing a lanyard",
+        "Ask them to badge in separately, or notify security if they can't/won't",
+        "Let it go since confronting people is awkward",
+        "Ask them what department they're from"
+      ],
+      "correct_index": 1,
+      "explanation": "A lanyard alone isn't proof of authorization \u2014 badges can be visually similar or intentionally vague. Restricted areas rely on every individual badging in themselves; politely but firmly asking them to do so (or escalating to security if they refuse) is the correct response, even though it can feel socially uncomfortable."
+    },
+
+    {
+      "id": "bec-1",
+      "category": "bec",
+      "prompt": "You receive an email that appears to be from your CEO, sent from their real-looking name but a slightly different email domain, asking you to urgently purchase $2,000 in gift cards for a 'client gift' and send the codes right away.",
+      "options": [
+        "Buy the gift cards quickly since it's from the CEO and marked urgent",
+        "Verify the request directly with the CEO through a known phone number or in person before doing anything",
+        "Reply asking which client the gift is for",
+        "Buy a smaller amount first to test if it's real"
+      ],
+      "correct_index": 1,
+      "explanation": "Gift card requests are one of the most common BEC (Business Email Compromise) patterns, precisely because gift card codes are instantly usable and untraceable, unlike a wire transfer. Urgency plus an unusual payment method from a senior exec is a major red flag \u2014 always verify out-of-band before acting."
+    },
+    {
+      "id": "bec-2",
+      "category": "bec",
+      "prompt": "An email from your company's 'CFO' asks you to change the bank account on file for a longtime vendor, citing a 'recent account switch,' with instructions to update it before the next invoice is paid.",
+      "options": [
+        "Update it since it's a routine vendor administrative request",
+        "Contact the vendor directly using previously known contact info to confirm before changing anything",
+        "Update it but flag the invoice for review afterward",
+        "Ask the CFO to confirm over email once more"
+      ],
+      "correct_index": 1,
+      "explanation": "Vendor bank-detail change requests are a textbook BEC tactic \u2014 redirecting a legitimate, expected payment to an attacker-controlled account. Confirming over email again doesn't help if the CFO's account itself is compromised. Always verify banking changes directly with the vendor via a previously established phone number, not new details provided in the request itself."
+    },
+    {
+      "id": "bec-3",
+      "category": "bec",
+      "prompt": "You get a message on Slack, seemingly from your manager, asking you to process an 'urgent wire transfer' before end of day for a deal that 'can't wait for the usual approval process.'",
+      "options": [
+        "Process it since it came through Slack, which feels more secure than email",
+        "Follow the normal approval process regardless, and verify directly with your manager in person or by phone",
+        "Ask a coworker to help push it through faster",
+        "Process half the amount to reduce risk"
+      ],
+      "correct_index": 1,
+      "explanation": "Chat platforms like Slack can also be spoofed or accessed via a compromised account, so the platform itself isn't a safety guarantee. Requests to skip established approval processes \u2014 especially involving money \u2014 are a major red flag regardless of who appears to be asking. Verify through a separate channel every time."
+    },
+
+    {
+      "id": "usb_media-1",
+      "category": "usb_media",
+      "prompt": "You find a USB drive labeled 'Q4 Salary Review \u2014 Confidential' in the office parking lot. What should you do?",
+      "options": [
+        "Plug it in out of curiosity to see whose it is",
+        "Turn it in to IT/security without plugging it into any computer",
+        "Plug it into a personal laptop instead of a work one",
+        "Leave it where you found it"
+      ],
+      "correct_index": 1,
+      "explanation": "This is a classic 'USB drop' attack \u2014 an enticing label is used to bait curiosity, and plugging it in (even on a personal device) can trigger malware. The correct response is handing it to IT/security so it can be safely inspected, without ever connecting it to any computer yourself."
+    },
+    {
+      "id": "usb_media-2",
+      "category": "usb_media",
+      "prompt": "A flyer at a coffee shop near your office has a QR code for '20% off your next order.' Scanning it opens a page asking you to log in with your work email to 'verify eligibility.'",
+      "options": [
+        "Log in since it's just a discount promotion",
+        "Don't log in \u2014 there's no reason a coffee discount needs your work credentials",
+        "Use a personal email instead of your work one",
+        "Scan it again to see if it changes"
+      ],
+      "correct_index": 1,
+      "explanation": "This is 'quishing' (QR code phishing) \u2014 a legitimate-looking physical flyer leading to a credential-harvesting page. A real discount offer has no legitimate reason to require your work login. Any QR code requesting credentials, especially work ones, in an unrelated context should be treated as suspicious."
+    },
+    {
+      "id": "usb_media-3",
+      "category": "usb_media",
+      "prompt": "A vendor at a conference hands you a free USB-powered phone charger/fan branded with their logo. Back at the office, you want to charge your phone with it.",
+      "options": [
+        "Plug it directly into your work laptop's USB port to charge",
+        "Use a wall outlet or a USB data-blocker ('USB condom') instead of a computer's data port",
+        "Plug it into a coworker's computer instead",
+        "It's fine since it's from a real company at a real event"
+      ],
+      "correct_index": 1,
+      "explanation": "Free branded USB gadgets are a known vector for 'juice jacking' or hidden malicious firmware, even from seemingly legitimate vendors (promotional items are sometimes manufactured by third parties with unknown supply-chain integrity). Charging through a wall outlet or a data-blocker avoids exposing your computer's USB data lines entirely."
+    },
+
+    {
+      "id": "ai_voice-1",
+      "category": "ai_voice",
+      "prompt": "You get a phone call that sounds exactly like your company's CEO, urgently asking you to approve a wire transfer, using their real speech patterns and tone. Your caller ID even shows their name.",
+      "options": [
+        "Approve it since the voice and caller ID both match",
+        "Hang up and verify through a separate, pre-established channel (like messaging them directly or calling their known number back)",
+        "Ask the caller to repeat the request to confirm",
+        "Approve a smaller amount as a compromise"
+      ],
+      "correct_index": 1,
+      "explanation": "AI voice cloning can now convincingly mimic a real person's voice from just a few seconds of public audio (interviews, videos, podcasts), and caller ID can be spoofed. Voice and caller ID matching is no longer reliable proof of identity for high-stakes requests \u2014 always verify financial or sensitive requests through a separate, already-trusted channel."
+    },
+    {
+      "id": "ai_voice-2",
+      "category": "ai_voice",
+      "prompt": "A family member calls sounding distressed, claiming to be in trouble and urgently needing money sent via a payment app, and the voice sounds just like them.",
+      "options": [
+        "Send the money immediately since they sound genuinely distressed",
+        "Hang up and call them back directly on their known number to confirm before sending anything",
+        "Ask them a question only they would know, over the same call",
+        "Send a smaller amount to help while verifying"
+      ],
+      "correct_index": 1,
+      "explanation": "AI voice cloning scams increasingly target personal relationships, not just workplaces, using short audio clips scraped from social media. Even answering a 'security question' on the same call doesn't help if the attacker is also using real-time AI voice conversion or has done research. Hanging up and calling back on a known number is the only reliable verification."
+    },
+    {
+      "id": "ai_voice-3",
+      "category": "ai_voice",
+      "prompt": "During a video call, a colleague's video and voice look and sound normal, but they suddenly ask you to share your screen and read out a one-time passcode you're about to receive.",
+      "options": [
+        "Read it out since you can see and hear them clearly on video",
+        "Decline, end the call, and verify separately \u2014 deepfake video/voice can be convincing in real time",
+        "Read only part of the code",
+        "Ask them why they need it, over the same call"
+      ],
+      "correct_index": 1,
+      "explanation": "Real-time deepfake video and voice tools have advanced enough to convincingly impersonate someone in a live call. No legitimate colleague needs you to read a one-time passcode to them under any circumstance \u2014 this is one of the clearest signals of an attack, regardless of how convincing the call appears."
+    },
+
+    {
+      "id": "physical_security-1",
+      "category": "physical_security",
+      "prompt": "You step away from your desk for a quick coffee break, leaving your laptop unlocked and logged in to internal systems.",
+      "options": [
+        "It's fine for a quick break, especially in the office",
+        "Lock your screen every time you step away, no matter how briefly",
+        "Just close the laptop lid instead of locking it",
+        "Turn the monitor off to hide the screen"
+      ],
+      "correct_index": 1,
+      "explanation": "An unlocked, logged-in workstation is a serious exposure even for 'just a minute' \u2014 anyone passing by (employee, visitor, or an attacker who tailgated in) has full access to your accounts and data. Closing the lid or turning off the monitor doesn't prevent access; locking the screen (Win+L / Cmd+Ctrl+Q) takes seconds and should be automatic."
+    },
+    {
+      "id": "physical_security-2",
+      "category": "physical_security",
+      "prompt": "You're finishing sensitive documents at your desk and need to leave for the day. What's the correct way to handle the printed pages?",
+      "options": [
+        "Leave them on the desk since the office is locked overnight",
+        "Shred them or place them in a secure/confidential disposal bin",
+        "Put them in the regular recycling bin",
+        "Stack them neatly in a drawer for tomorrow"
+      ],
+      "correct_index": 1,
+      "explanation": "Cleaning crews, other tenants, or anyone with after-hours access could see sensitive documents left on a desk or thrown in regular recycling ('dumpster diving' is a real, low-tech data theft method). Confidential material should always go through a secure shredding/disposal process, not general trash or recycling."
+    },
+    {
+      "id": "physical_security-3",
+      "category": "physical_security",
+      "prompt": "While working at a coffee shop, you need to step away briefly to use the restroom. Your laptop is open with your work email visible.",
+      "options": [
+        "Ask a nearby stranger to watch it for you",
+        "Lock the screen and take the laptop with you, or pack it away entirely",
+        "Just close the lid, since sleep mode is secure enough",
+        "Leave it, since it's a public place and people generally don't touch others' things"
+      ],
+      "correct_index": 1,
+      "explanation": "Asking a stranger to 'watch' a device doesn't protect against theft or shoulder-surfing, and closing the lid can leave it in a resumable sleep state depending on settings. In public spaces, taking sensitive devices with you (or packing them away, screen locked) is the only reliable option \u2014 both against theft and against visible data on the screen."
+    },
+
+    {
+      "id": "mfa_fatigue-1",
+      "category": "mfa_fatigue",
+      "prompt": "You start getting a rapid series of push-notification login approval requests on your phone that you didn't initiate, one after another, late at night.",
+      "options": [
+        "Approve one to make the notifications stop",
+        "Deny all of them and immediately change your password and report it to IT/security",
+        "Ignore them and go back to sleep, they'll stop eventually",
+        "Approve it thinking it might be a delayed login from earlier"
+      ],
+      "correct_index": 1,
+      "explanation": "This is an 'MFA fatigue' or 'push bombing' attack \u2014 an attacker who already has your password spams approval requests hoping you'll approve one out of annoyance or confusion. Every request should be denied, and the incident reported immediately, since it confirms your password is already compromised even though MFA hasn't been bypassed yet."
+    },
+    {
+      "id": "mfa_fatigue-2",
+      "category": "mfa_fatigue",
+      "prompt": "You receive one unexpected MFA push notification while you're not actively logging into anything. It's just a single request, not a flood.",
+      "options": [
+        "Approve it since it's just one, probably a fluke",
+        "Deny it and change your password, since any unexpected request means someone has your credentials",
+        "Ignore it completely and do nothing",
+        "Approve it and monitor your account afterward"
+      ],
+      "correct_index": 1,
+      "explanation": "Even a single unrequested MFA prompt means someone else already has your username and password and is one tap away from getting in \u2014 it doesn't need to be a flood to be a real attack. Treat any unexpected authentication request as a sign of compromise: deny it and change your password immediately."
+    },
+    {
+      "id": "mfa_fatigue-3",
+      "category": "mfa_fatigue",
+      "prompt": "After denying several unexpected MFA push requests, you get a call from someone claiming to be 'IT' saying they see the failed logins and need you to approve the next one so they can 'verify your account is secure.'",
+      "options": [
+        "Approve the next one since IT is asking you to",
+        "Hang up \u2014 this is the attacker following up the push-bombing with a pretext call; report both to your real IT/security team",
+        "Ask them for their employee ID over the phone",
+        "Approve it but change your password right after"
+      ],
+      "correct_index": 1,
+      "explanation": "This combines two attack techniques: push bombing followed by a pretexting phone call to social-engineer the victim into approving anyway. Real IT departments don't call asking you to approve suspicious logins \u2014 they'd instead help you lock down the account. Hang up and report the entire sequence through a known, verified IT contact."
+    }
+  ]
+}

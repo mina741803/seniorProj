@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In &mdash; Security Awareness Trainer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="login-page">
+        <div class="login-card">
+            <h1 class="login-title">Security Awareness Trainer</h1>
+            <p class="login-subtitle">Sign in with your company account</p>
+
+            {% if error %}
+            <div class="login-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('login') }}" class="login-form">
+                <label class="login-label" for="username">Username</label>
+                <input class="login-input" type="text" id="username" name="username" autocomplete="username" required autofocus>
+
+                <label class="login-label" for="password">Password</label>
+                <input class="login-input" type="password" id="password" name="password" autocomplete="current-password" required>
+
+                <button type="submit" class="primary-button login-submit">Sign In</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
