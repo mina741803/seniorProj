@@ -13,7 +13,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          source /root/seniorProj/venv/bin/activate
+                    source /home/runner-svc/seniorProj/venv/bin/activate
           pip install -r requirements.txt
 
       - name: Restart the app service
