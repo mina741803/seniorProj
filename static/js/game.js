@@ -6,6 +6,19 @@ const overallScoreEl = document.getElementById('overall-score');
 
 let currentQuestion = null; // {id, category, prompt, options}
 
+const CATEGORY_ICONS = {
+  phishing: '\u{1F3A3}',
+  vishing: '\u{1F4DE}',
+  smishing: '\u{1F4AC}',
+  pretexting: '\u{1F3AD}',
+  tailgating: '\u{1F6AA}',
+  bec: '\u{1F4BC}',
+  usb_media: '\u{1F4BE}',
+  ai_voice: '\u{1F916}',
+  physical_security: '\u{1F512}',
+  mfa_fatigue: '\u{1F514}',
+};
+
 async function apiFetch(url, options) {
   const res = await fetch(url, options);
   if (res.status === 401) {
@@ -37,6 +50,7 @@ function renderCategoryGrid(categories) {
     const card = document.createElement('div');
     card.className = 'category-card' + (cat.complete ? ' complete' : '');
     card.innerHTML = `
+      <span class="category-icon">${CATEGORY_ICONS[cat.id] || '\u{1F4CB}'}</span>
       <div class="category-name">${cat.name}</div>
       <div class="category-meta">${cat.answered} / ${cat.total_questions} answered</div>
       ${cat.answered > 0 ? `<span class="category-badge">${cat.correct} correct</span>` : ''}
