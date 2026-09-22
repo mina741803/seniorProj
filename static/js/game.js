@@ -6,18 +6,36 @@ const overallScoreEl = document.getElementById('overall-score');
 
 let currentQuestion = null; // {id, category, prompt, options}
 
+// Inline SVG icons (hand-drawn, 24x24, stroke-based). They use currentColor, so
+// the CSS controls their color. These are static constants, not user/DB data.
+const svgIcon = (body) =>
+  `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" ` +
+  `stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+
 const CATEGORY_ICONS = {
-  phishing: '\u{1F3A3}',
-  vishing: '\u{1F4DE}',
-  smishing: '\u{1F4AC}',
-  pretexting: '\u{1F3AD}',
-  tailgating: '\u{1F6AA}',
-  bec: '\u{1F4BC}',
-  usb_media: '\u{1F4BE}',
-  ai_voice: '\u{1F916}',
-  physical_security: '\u{1F512}',
-  mfa_fatigue: '\u{1F514}',
+  // fish hook
+  phishing: svgIcon('<circle cx="15" cy="4" r="1.5"/><path d="M15 5.5V14a5 5 0 0 1-10 0v-2.5l3 2.5"/>'),
+  // phone handset
+  vishing: svgIcon('<path d="M5 3h3.5l2 5-2.5 1.5a11 11 0 0 0 6.5 6.5l1.5-2.5 5 2V19a2 2 0 0 1-2 2A17 17 0 0 1 3 5a2 2 0 0 1 2-2z"/>'),
+  // text-message bubble
+  smishing: svgIcon('<path d="M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9l-5 4V5a1 1 0 0 1 1-1z"/><path d="M8 9h8M8 12.5h5"/>'),
+  // ID badge (impersonation)
+  pretexting: svgIcon('<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16a3 3 0 0 1 6 0M14 10h4M14 13.5h3"/>'),
+  // door
+  tailgating: svgIcon('<path d="M3 21h18M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17"/><circle cx="14.5" cy="12" r="1" fill="currentColor"/>'),
+  // briefcase
+  bec: svgIcon('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12.5h18"/>'),
+  // USB stick
+  usb_media: svgIcon('<rect x="7" y="9" width="10" height="13" rx="2"/><path d="M9 9V3h6v6"/><path d="M11 5.5v1M13 5.5v1"/>'),
+  // voice waveform
+  ai_voice: svgIcon('<path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/>'),
+  // padlock
+  physical_security: svgIcon('<rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5M12 15v2"/>'),
+  // notification bell
+  mfa_fatigue: svgIcon('<path d="M6 16V10a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
 };
+// Fallback for any category added later without an icon: shield
+const DEFAULT_ICON = svgIcon('<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/>');
 
 async function apiFetch(url, options) {
   const res = await fetch(url, options);
@@ -50,7 +68,7 @@ function renderCategoryGrid(categories) {
     const card = document.createElement('div');
     card.className = 'category-card' + (cat.complete ? ' complete' : '');
     card.innerHTML = `
-      <span class="category-icon">${CATEGORY_ICONS[cat.id] || '\u{1F4CB}'}</span>
+      <span class="category-icon">${CATEGORY_ICONS[cat.id] || DEFAULT_ICON}</span>
       <div class="category-name">${cat.name}</div>
       <div class="category-meta">${cat.answered} / ${cat.total_questions} answered</div>
       ${cat.answered > 0 ? `<span class="category-badge">${cat.correct} correct</span>` : ''}

@@ -100,6 +100,16 @@ body {
   border: 1px solid var(--border);
   border-radius: 999px;
   overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.progress-caption {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
   margin-bottom: 32px;
 }
 
@@ -152,10 +162,14 @@ body {
 }
 
 .category-icon {
-  font-size: 1.4rem;
-  margin-bottom: 8px;
   display: block;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 8px;
+  color: var(--accent);
 }
+.category-icon svg { display: block; }
+.category-card.complete .category-icon { color: var(--correct); }
 
 .category-name {
   font-weight: 700;
