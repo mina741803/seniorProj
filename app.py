@@ -1,45 +1,35 @@
 """
-Security Awareness Trainer — Phase 1 prototype.
+Security Awareness Trainer.
 
-Local-only prototype: no LDAP, no Postgres. Question bank is a static JSON
-file (data/questions.json). Scoring/progress lives entirely in the Flask
-session, so it persists across page refreshes but clears on logout/reset,
-matching the design agreed on with the user.
+Question bank lives in Postgres (see db.py, schema.sql, and
+load_questions_to_db.py for the one-time loader). Scoring/progress lives
+entirely in the Flask session, so it persists across page refreshes but
+clears on logout/reset, matching the agreed design.
 
-Phase 2 will add LDAP auth in front of this.
-Phase 3 will replace the JSON file with a Postgres-backed question bank
-generated via the Anthropic API.
+Auth is handled by auth.py (LDAP/LDAPS bind against Active Directory).
 """
 
-import json
 import os
-import random
 from functools import wraps
-from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
 import auth
+import db
 
 load_dotenv()  # reads .env if present; falls back to real environment variables otherwise
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-only-secret-change-me")
 
-DATA_PATH = Path(__file__).parent / "data" / "questions.json"
-
-with open(DATA_PATH, "r", encoding="utf-8") as f:
-    BANK = json.load(f)
-
-CATEGORIES = {c["id"]: c["name"] for c in BANK["categories"]}
-QUESTIONS_BY_CATEGORY = {}
-for q in BANK["questions"]:
-    QUESTIONS_BY_CATEGORY.setdefault(q["category"], []).append(q)
-
-QUESTIONS_BY_ID = {q["id"]: q for q in BANK["questions"]}
-
-TOTAL_QUESTIONS = len(BANK["questions"])
+# Categories and total question count change rarely (only when the bank is
+# re-loaded), so we cache them at startup rather than querying Postgres on
+# every single request. Restart the app after re-running the loader script
+# if you add/remove categories.
+CATEGORIES = {c["id"]: c["name"] for c in db.get_categories()}
+QUESTION_COUNTS_BY_CATEGORY = db.get_question_counts_by_category()
+TOTAL_QUESTIONS = db.get_total_question_count()
 
 
 def get_state():
@@ -103,7 +93,7 @@ def api_categories():
     stats = state["category_stats"]
     result = []
     for cid, name in CATEGORIES.items():
-        total_in_cat = len(QUESTIONS_BY_CATEGORY.get(cid, []))
+        total_in_cat = QUESTION_COUNTS_BY_CATEGORY.get(cid, 0)
         answered_in_cat = stats.get(cid, {}).get("total", 0)
         correct_in_cat = stats.get(cid, {}).get("correct", 0)
         result.append({
@@ -133,14 +123,12 @@ def api_question(category_id):
         return jsonify({"error": "Unknown category"}), 404
 
     state = get_state()
-    answered_ids = set(state["answered_ids"])
+    answered_ids = state["answered_ids"]
 
-    pool = [q for q in QUESTIONS_BY_CATEGORY.get(category_id, []) if q["id"] not in answered_ids]
+    question = db.get_random_unanswered_question(category_id, answered_ids)
 
-    if not pool:
+    if question is None:
         return jsonify({"done": True, "category": category_id, "name": CATEGORIES[category_id]})
-
-    question = random.choice(pool)
 
     # Never send the correct_index or explanation to the client before they answer.
     return jsonify({
@@ -148,7 +136,7 @@ def api_question(category_id):
         "id": question["id"],
         "category": category_id,
         "prompt": question["prompt"],
-        "options": question["options"],
+        "options": [question["option_a"], question["option_b"], question["option_c"], question["option_d"]],
     })
 
 
@@ -159,7 +147,7 @@ def api_answer():
     question_id = payload.get("question_id")
     selected_index = payload.get("selected_index")
 
-    question = QUESTIONS_BY_ID.get(question_id)
+    question = db.get_question_by_id(question_id)
     if question is None:
         return jsonify({"error": "Unknown question"}), 404
 
@@ -178,7 +166,7 @@ def api_answer():
         session["correct_count"] = state["correct_count"] + 1
 
     stats = state["category_stats"]
-    cat_id = question["category"]
+    cat_id = question["category_id"]
     stats.setdefault(cat_id, {"correct": 0, "total": 0})
     stats[cat_id]["total"] += 1
     if is_correct:
